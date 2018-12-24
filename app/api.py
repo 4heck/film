@@ -2,7 +2,7 @@ from app import app
 from models import Customer
 from models import Owner
 from models import Deal
-from models import Car
+from models import Film
 from flask import jsonify
 from flask import request
 from app import db
@@ -106,7 +106,7 @@ def api_owner_update(id):
 @app.route('/api/deal', methods=['GET'])
 def api_deal_get():
     deals = Deal.query.all()
-    deals_json = [{"id": deal.id, "owner": deal.owner, "customer": deal.customer, "car": deal.car}
+    deals_json = [{"id": deal.id, "owner": deal.owner, "customer": deal.customer, "film": deal.film}
                   for deal in deals]
     return jsonify(deals_json)
 
@@ -116,16 +116,16 @@ def api_deal_get_id(id):
     if not deals:
         abort(404)
     deal = deals[0]
-    deal_json = {"id": deal.id, "owner": deal.owner, "customer": deal.customer, "car": deal.car}
+    deal_json = {"id": deal.id, "owner": deal.owner, "customer": deal.customer, "film": deal.film}
     return jsonify(deal_json)
 
 @app.route('/api/deal', methods=['POST'])
 def api_deal_insert():
     new_deal = request.get_json()
-    deal = Deal(id=new_deal['id'], owner=new_deal['owner'], customer=new_deal['customer'], car=new_deal['car'])
+    deal = Deal(id=new_deal['id'], owner=new_deal['owner'], customer=new_deal['customer'], film=new_deal['film'])
     db.session.add(deal)
     db.session.commit()
-    deal_json = {"id": deal.id, "owner": deal.owner, "customer": deal.customer, "car": deal.car}
+    deal_json = {"id": deal.id, "owner": deal.owner, "customer": deal.customer, "film": deal.film}
     return jsonify(deal_json)
 
 @app.route('/api/deal/<id>', methods=['DELETE'])
@@ -147,56 +147,55 @@ def api_deal_update(id):
     deal_to_update = db.session.query(Deal).filter_by(id = id).first()
     deal_to_update.owner = data['owner']
     deal_to_update.customer = data['customer']
-    deal_to_update.car = data['car']
+    deal_to_update.film = data['film']
     db.session.commit()
     return jsonify(deal_to_update.to_dict())
+    
+#api's for film
+@app.route('/api/film', methods=['GET'])
+def api_film_get():
+    films = Film.query.all()
+    films_json = [{"id": film.id, "name": film.name, "duration": film.duration, "year": film.year}
+                  for film in films]
+    return jsonify(films_json)
 
-#api's for car
-@app.route('/api/car', methods=['GET'])
-def api_car_get():
-    cars = Car.query.all()
-    cars_json = [{"id": car.id, "name": car.name, "price": car.price, "year": car.year, "mileage": car.mileage}
-                  for car in cars]
-    return jsonify(cars_json)
-
-@app.route('/api/car/<id>', methods=['GET'])
-def api_car_get_id(id):
-    cars = Car.query.filter_by(id=id)
-    if not cars:
+@app.route('/api/film/<id>', methods=['GET'])
+def api_film_get_id(id):
+    films = Film.query.filter_by(id=id)
+    if not films:
         abort(404)
-    car = cars[0]
-    car_json = {"id": car.id, "name": car.name, "price": car.price, "year": car.year, "mileage": car.mileage}
-    return jsonify(car_json)
+    film = films[0]
+    film_json = {"id": film.id, "name": film.name, "duration": film.duration, "year": film.year}
+    return jsonify(film_json)
 
-@app.route('/api/car', methods=['POST'])
-def api_car_insert():
-    new_car = request.get_json()
-    car = Car(id=new_car['id'], name=new_car['name'], price=new_car['price'], year=new_car['year'], mileage=new_car['mileage'])
-    db.session.add(car)
+@app.route('/api/film', methods=['POST'])
+def api_film_insert():
+    new_film = request.get_json()
+    film = Film(id=new_film['id'], name=new_film['name'], duration=new_film['duration'], year=new_film['year'])
+    db.session.add(film)
     db.session.commit()
-    car_json = {"id": car.id, "name": car.name, "price": car.price, "year": car.year, "mileage": car.mileage}
-    return jsonify(car_json)
+    film_json = {"id": film.id, "name": film.name, "duration": film.duration, "year": film.year}
+    return jsonify(film_json)
 
-@app.route('/api/car/<id>', methods=['DELETE'])
-def api_car_delete(id):
-    cars = Car.query.filter_by(id=id)
-    if not cars:
+@app.route('/api/film/<id>', methods=['DELETE'])
+def api_film_delete(id):
+    films = Film.query.filter_by(id=id)
+    if not films:
         abort(404)
-    car = cars[0]
-    db.session.delete(car)
+    film = films[0]
+    db.session.delete(film)
     db.session.commit()
     return jsonify()
 
-@app.route('/api/car/<id>', methods=['PUT'])
-def api_car_update(id):
-    updated_car = request.get_json()
-    cars_to_update = Car.query.filter_by(id=id)
+@app.route('/api/film/<id>', methods=['PUT'])
+def api_film_update(id):
+    updated_film = request.get_json()
+    films_to_update = Film.query.filter_by(id=id)
     data = json.loads(request.get_data())
-    car_to_update = cars_to_update[0]
-    car_to_update = db.session.query(Car).filter_by(id = id).first()
-    car_to_update.name = data['name']
-    car_to_update.price = data['price']
-    car_to_update.year = data['year']
-    car_to_update.mileage = data['mileage']
+    film_to_update = films_to_update[0]
+    film_to_update = db.session.query(Film).filter_by(id = id).first()
+    film_to_update.name = data['name']
+    film_to_update.duration = data['duration']
+    film_to_update.year = data['year']
     db.session.commit()
-    return jsonify(car_to_update.to_dict())
+    return jsonify(film_to_update.to_dict())
